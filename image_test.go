@@ -1,8 +1,8 @@
 package openai //nolint:testpackage // testing private field
 
 import (
-	utils "github.com/sashabaranov/go-openai/internal"
-	"github.com/sashabaranov/go-openai/internal/test/checks"
+	utils "github.com/bzennn/go-openai/internal"
+	"github.com/bzennn/go-openai/internal/test/checks"
 
 	"context"
 	"fmt"
@@ -13,9 +13,14 @@ import (
 
 type mockFormBuilder struct {
 	mockCreateFormFile       func(string, *os.File) error
+	mockCreateFormImage      func(string, *os.File) error
 	mockCreateFormFileReader func(string, io.Reader, string) error
 	mockWriteField           func(string, string) error
 	mockClose                func() error
+}
+
+func (fb *mockFormBuilder) CreateFormImage(fieldname string, file *os.File) error {
+	return fb.mockCreateFormImage(fieldname, file)
 }
 
 func (fb *mockFormBuilder) CreateFormFile(fieldname string, file *os.File) error {
