@@ -11,6 +11,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/bzennn/go-openai"
 	"github.com/bzennn/go-openai/internal/test/checks"
 )
 
