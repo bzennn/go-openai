@@ -99,14 +99,14 @@ func (c *Client) CreateEditImage(ctx context.Context, request ImageEditRequest) 
 	builder := c.createFormBuilder(body)
 
 	// image
-	err = builder.CreateFormFile("image", request.Image)
+	err = builder.CreateFormImage("image", request.Image)
 	if err != nil {
 		return
 	}
 
 	// mask, it is optional
 	if request.Mask != nil {
-		err = builder.CreateFormFile("mask", request.Mask)
+		err = builder.CreateFormImage("mask", request.Mask)
 		if err != nil {
 			return
 		}
@@ -168,7 +168,7 @@ func (c *Client) CreateVariImage(ctx context.Context, request ImageVariRequest) 
 	builder := c.createFormBuilder(body)
 
 	// image
-	err = builder.CreateFormFile("image", request.Image)
+	err = builder.CreateFormImage("image", request.Image)
 	if err != nil {
 		return
 	}

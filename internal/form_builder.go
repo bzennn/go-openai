@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"io"
 	"mime/multipart"
+	"net/textproto"
 	"os"
 	"path"
 )
 
 type FormBuilder interface {
 	CreateFormFile(fieldname string, file *os.File) error
+	CreateFormImage(fieldname string, file *os.File) error
 	CreateFormFileReader(fieldname string, r io.Reader, filename string) error
 	WriteField(fieldname, value string) error
 	Close() error
@@ -30,6 +32,10 @@ func (fb *DefaultFormBuilder) CreateFormFile(fieldname string, file *os.File) er
 	return fb.createFormFile(fieldname, file, file.Name())
 }
 
+func (fb *DefaultFormBuilder) CreateFormImage(fieldname string, file *os.File) error {
+	return fb.createFormImage(fieldname, file, file.Name())
+}
+
 func (fb *DefaultFormBuilder) CreateFormFileReader(fieldname string, r io.Reader, filename string) error {
 	return fb.createFormFile(fieldname, r, path.Base(filename))
 }
@@ -40,6 +46,28 @@ func (fb *DefaultFormBuilder) createFormFile(fieldname string, r io.Reader, file
 	}
 
 	fieldWriter, err := fb.writer.CreateFormFile(fieldname, filename)
+	if err != nil {
+		return err
+	}
+
+	_, err = io.Copy(fieldWriter, r)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (fb *DefaultFormBuilder) createFormImage(fieldname string, r io.Reader, filename string) error {
+	if filename == "" {
+		return fmt.Errorf("filename cannot be empty")
+	}
+
+	h := make(textproto.MIMEHeader)
+	h.Set("Content-Disposition", fmt.Sprintf(`form-data; name="%s"; filename="%s"`, fieldname, filename))
+	h.Set("Content-Type", "image/png")
+
+	fieldWriter, err := fb.writer.CreatePart(h)
 	if err != nil {
 		return err
 	}
